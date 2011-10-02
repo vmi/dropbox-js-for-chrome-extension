@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Example of Dropbox JS for Chrome Extension</title>
+    <style>
+      .em {
+        color: red;
+      }
+      pre {
+        border-width: 1px;
+        border-style: solid;
+        border-color: blue;
+        border-collapse: collapse;
+        padding: 1ex;
+        margin: 1ex;
+      }
+      .noinit {
+        color: red;
+      }
+      .inited {
+        color: red;
+        font-weight: bold;
+      }
+      input.path, input.fromPath, input.toPath {
+        width: 20em;
+      }
+      table, tr, th, td {
+        border-width: 1px;
+        border-style: solid;
+        border-color: black;
+        border-collapse: collapse;
+        padding: 0.5ex;
+      }
+      div.result > table {
+        margin: 1ex;
+      }
+      td {
+        min-width: 1em;
+      }
+    </style>
+    <!-- Required libraries -->
+    <script src="sha1.js"></script>
+    <script src="oauth.js"></script>
+    <script src="oauth-request.js"></script>
+    <script src="dropbox.js"></script>
+
+    <!-- Example program -->
+    <script src="jquery.js"></script>
+    <script src="example.js"></script>
+  </head>
+  <body>
+    <h1>Example of Dropbox JS for Chrome Extension</h1>
+    <hr>
+    <div>
+      <h2>First step</h2>
+      <p>
+        To get consumer key (app key) and consumer secret (app secret),<br>
+        register your application information at <a href="https://www.dropbox.com/developers">Dropbox for Developers site</a>. 
+      </p>
+    </div>
+    <hr>
+    <div>
+      <h2>Create manifest.json</h2>
+      <p>manifest.json of this extension is follows:</p>
+      <pre>{
+  &quot;name&quot;: &quot;dropbox.js sample extension&quot;,
+  &quot;version&quot;: &quot;0.1&quot;,
+  &quot;description&quot;: &quot;A sample extension of dropbox.js.&quot;,
+  &quot;app&quot;: { &quot;launch&quot;: { &quot;local_path&quot;: &quot;example.html&quot; } },
+<span class="em">  &quot;content_scripts&quot;: [
+    {
+      &quot;matches&quot;: [&quot;https://www.dropbox.com/0/oauth/authorize*&quot;],
+      &quot;js&quot;: [&quot;dropbox-authorize.js&quot;]
+    }
+  ],
+  &quot;permissions&quot;: [</span>
+    &quot;unlimitedStorage&quot;,
+<span class="em">    &quot;tabs&quot;,
+    &quot;https://www.dropbox.com/&quot;,
+    &quot;https://api.dropbox.com/&quot;,
+    &quot;https://api-content.dropbox.com/&quot;
+  ]</span>
+}</pre>
+
+    </div>
+    <div>
+      <h2>Import JS libraries</h2>
+      <pre>&lt;script src=&quot;sha1.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;oauth.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;oauth-request.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;dropbox.js&quot;&gt;&lt;/script&gt;</pre>
+    </div>
+    <hr>
+    <div>
+      <h2>Callback functions</h2>
+      <h3>success</h3>
+      <p>This function called when accepted your request.</p>
+      <pre>function success(result, xhr) {
+  // result = object parsed JSON data, text, or Blob.
+  // xhr = plain XMLHttpRequest
+  ...
+}</pre>
+      <h3>error</h3>
+      <p>This function is called when refused your request.<br>
+      If don't pass error function, internal default error function is called.</p>
+      <pre>function error(result, xhr) {
+  // result = object parsed JSON data (if parsable) or text.
+  // xhr = plain XMLHttpRequest or empty object (only authorize failed).
+  ...
+}</pre>
+    </div>
+    <hr>
+    <div>
+      <h2>Create base64 encoded consumer key and secret</h2>
+      <p>Simple masking consumer key and secret.</p>
+      <pre>btoa(&quot;<input type="text" id="consumerKey" size="15">&quot; + &quot;\n&quot; +
+     &quot;<input type="text" id="consumerSecret" size="15">&quot;)
+⇒ &quot;<input type="text" id="consumerKnS" size="50">&quot;</pre>
+      <button onclick="createConsumerKnS()">Run</button> (In this example, store base64 encoded consumer key and secret to localStorage)<br>
+      <button onclick="clearKey()">Clear</button> Clear base64 encoded consumer key and secret from localStorage.
+    <hr>
+    <div>
+      <h2>Construct Dropbox object</h2>
+      <pre>var dropbox = new Dropbox(
+  &quot;<input type="text" id="consumerKnS2" size="50">&quot;
+); // base64 encoded consumer key and secret</pre>
+      <button onclick="construct()">Run</button><br><br>
+      Status: <span id="status"><span class="noinit">Not constructed.</span></span>
+    </div>
+    <hr>
+    <div>
+      <h2>unauthorize</h2>
+      <p>Clear access key and access secret.</p>
+      <pre>dropbox-&gt;unauthorize();</pre>
+      <button onclick="exampleUnauthorize(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>authorize</h2>
+      <p>Get access key and access secret of OAuth.<br>
+      Store there to Dropbox object and localStorage.</p>
+      <pre>dropbox-&gt;authorize(success, error);</pre>
+      <button onclick="exampleAuthorize(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getAccountInfo</h2>
+      <p>Get Dropbox account information.</p>
+      <pre>dropbox-&gt;getAccountInfo(success, error);</pre>
+      <button onclick="exampleGetAccountInfo(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getMetadata</h2>
+      <p>Get metadata of the item (file or folder).</p>
+      <pre>dropbox-&gt;getMetadata(
+  &quot;<input type="text" class="path" value="/">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetMetadata(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getFolderContents</h2>
+      <p>Get metadeta of the folder and of items in it.</p>
+      <pre>dropbox-&gt;getFolderContents(
+  &quot;<input type="text" class="path" value="/">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetFolderContents(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>uploadFile</h2>
+      <p>Upload text file (UTF-8 only).</p>
+      <pre>dropbox-&gt;uploadFile(
+  &quot;<input type="text" class="path" value="/test.txt">&quot;,
+  &quot;<textarea class="text">test message.</textarea>&quot;,
+  success, error);</pre>
+      <button onclick="exampleUploadFile(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getFile</h2>
+      <p>Get file content.</p>
+      <pre>dropbox-&gt;getFile(
+  &quot;<input type="text" class="path" value="/test.txt">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetFile(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getThumbnail</h2>
+      <p>Get image of thumbnail (if exists).</p>
+      <pre>dropbox-&gt;getThumbnail(
+  &quot;<input type="text" class="path" value="/Photos/Sample Album/Boston City Flow.jpg">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetThumbnail(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>createFolder</h2>
+      <p>Create new folder.</p>
+      <pre>dropbox-&gt;createFolder(
+  &quot;<input type="text" class="path" value="/sandbox">&quot;,
+  success, error);</pre>
+      <button onclick="exampleCreateFolder(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>moveItem</h2>
+      <p>Move item.</p>
+      <pre>dropbox-&gt;moveItem(
+  &quot;<input type="text" class="fromPath" value="/test.txt">&quot;, // from path
+  &quot;<input type="text" class="toPath" value="/sandbox/test.txt">&quot;, // to path
+  success, error);</pre>
+      <button onclick="exampleMoveItem(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>copyItem</h2>
+      <p>Copy item.</p>
+      <pre>dropbox-&gt;copyItem(
+  &quot;<input type="text" class="fromPath" value="/sandbox/test.txt">&quot;, // from path
+  &quot;<input type="text" class="toPath" value="/sandbox/test2.txt">&quot;, // to path
+  success, error);</pre>
+      <button onclick="exampleCopyItem(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>deleteItem</h2>
+      <p>Delete item.</p>
+      <pre>dropbox-&gt;deleteItem(
+  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  success, error);</pre>
+      <button onclick="exampleDeleteItem(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      vmi.jp
+    </div>
+    <script>
+      init();
+    </script>
+  </body>
+</html>
+<!--
+  Local Variables:
+  indent-tabs-mode: nil
+  sgml-basic-offset: 2
+  End:
+-->

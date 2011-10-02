@@ -1,0 +1,19 @@
+List of licenses:
+
+- sha1.js (from jshash-2.2)
+  http://pajhome.org.uk/crypt/md5/
+  -> http://pajhome.org.uk/crypt/md5/scripts.html
+  License: BSD License
+
+- oauth.js (from OAuth Rev.1262)
+  http://oauth.net/
+  -> http://oauth.net/code/
+  -> http://oauth.googlecode.com/svn/code/javascript/
+  License: Apache License 2.0
+
+- jquery.js (from jQuery 1.6.2)
+  http://jquery.org/
+  License: MIT & GPL V2 Licenses
+
+- others
+  License: The BSD 2-Clause License

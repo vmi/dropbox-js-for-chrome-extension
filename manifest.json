@@ -1,0 +1,19 @@
+{
+  "name": "dropbox.js sample extension",
+  "version": "0.1",
+  "description": "A sample extension of dropbox.js.",
+  "app": { "launch": { "local_path": "example.html" } },
+  "content_scripts": [
+    {
+      "matches": ["https://www.dropbox.com/0/oauth/authorize*"],
+      "js": ["dropbox-authorize.js"]
+    }
+  ],
+  "permissions": [
+    "unlimitedStorage",
+    "tabs",
+    "https://www.dropbox.com/",
+    "https://api.dropbox.com/",
+    "https://api-content.dropbox.com/"
+  ]
+}
