@@ -296,9 +296,12 @@ var OAuthRequest = (function() {
     }
 
     // Send OAuth'ed multipart request (POST only)
-    ,requestMultipart: function(url, filename, content, success, error) {
+    ,requestMultipart: function(url, filename, content, data, success, error) {
       var message = _oauthMessage(this, "POST", url);
-      _xhrRequestMultipart(url, message.parameters, filename, content,
+      var prm = message.parameters;
+      for (var key in data)
+        prm[key] = data[key];
+      _xhrRequestMultipart(url, prm, filename, content,
                            success, error || this.defaultError);
     }
 
