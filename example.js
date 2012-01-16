@@ -70,7 +70,7 @@ function getElem(button, clazz) {
 var dropbox = null;
 
 // Initialize example page
-function init() {
+function initialize() {
   var consumerKnS = localStorage["Dropbox:consumerKnS"];
   if (consumerKnS) {
     $("#consumerKnS").val(consumerKnS);
@@ -101,7 +101,7 @@ function construct() {
       alert("Missing base64 encoded consumer key and secret.");
       return;
     }
-    dropbox = new Dropbox(consumerKnS);
+    dropbox = new Dropbox().initialize(consumerKnS);
     $("#status").html('<span class="inited">OK</span>');
   }
 }
@@ -119,10 +119,10 @@ function clearKey() {
 function exampleAuthorize(button) {
   dropbox.authorize(function() {
     var data = {
-      requestToken: dropbox.oauth.requestToken,
-      requestTokenSecret: dropbox.oauth.requestTokenSecret,
-      accessToken: dropbox.oauth.accessToken,
-      accessTokenSecret: dropbox.oauth.accessTokenSecret
+      requestToken: dropbox.requestToken,
+      requestTokenSecret: dropbox.requestTokenSecret,
+      accessToken: dropbox.accessToken,
+      accessTokenSecret: dropbox.accessTokenSecret
     };
     showResult(button, data);
   });
@@ -131,10 +131,10 @@ function exampleAuthorize(button) {
 function exampleUnauthorize(button) {
   dropbox.unauthorize();
   var data = {
-    requestToken: dropbox.oauth.requestToken,
-    requestTokenSecret: dropbox.oauth.requestTokenSecret,
-    accessToken: dropbox.oauth.accessToken,
-    accessTokenSecret: dropbox.oauth.accessTokenSecret
+    requestToken: dropbox.requestToken,
+    requestTokenSecret: dropbox.requestTokenSecret,
+    accessToken: dropbox.accessToken,
+    accessTokenSecret: dropbox.accessTokenSecret
   };
   showResult(button, data);
 }
@@ -148,6 +148,28 @@ function exampleGetAccountInfo(button) {
 function exampleGetMetadata(button) {
   var path = getElem(button, "path").val();
   dropbox.getMetadata(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleGetRevisions(button) {
+  var path = getElem(button, "path").val();
+  dropbox.getRevisions(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleGetRevisions(button) {
+  var path = getElem(button, "path").val();
+  dropbox.getRevisions(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleRestoreFile(button) {
+  var path = getElem(button, "path").val();
+  var rev = getElem(button, "rev").val();
+  dropbox.restoreFile(path, rev, function(data) {
     showResult(button, data);
   });
 }
@@ -207,6 +229,28 @@ function exampleCopyItem(button) {
 function exampleDeleteItem(button) {
   var path = getElem(button, "path").val();
   dropbox.deleteItem(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleCreateShares(button) {
+  var path = getElem(button, "path").val();
+  dropbox.createShares(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleGetDirectLink(button) {
+  var path = getElem(button, "path").val();
+  dropbox.getDirectLink(path, function(data) {
+    showResult(button, data);
+  });
+}
+
+function exampleSearch(button) {
+  var path = getElem(button, "path").val();
+  var query = getElem(button, "query").val();
+  dropbox.search(path, query, function(data) {
     showResult(button, data);
   });
 }

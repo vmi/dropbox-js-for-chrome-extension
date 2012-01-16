@@ -266,16 +266,9 @@ var OAuthRequest = (function() {
   };
 
   //
-  // Constructor
+  // Class Definition
   //
-  var _class = function(appId, consumerKnS, defaultError) {
-    this.appId = appId;
-    var pair = atob(consumerKnS).split(/\n/);
-    this.consumerKey = pair[0];
-    this.consumerSecret = pair[1];
-    _loadAccessToken(this);
-    this.defaultError = defaultError || _defaultError;
-  };
+  var _class = function OAuthRequest() {};
 
   //
   // Export Constants
@@ -287,9 +280,20 @@ var OAuthRequest = (function() {
   //
   // Method Definitions
   //
-  _class.prototype = {
+  var _methods = {
+    // Initialize
+    initialize: function(appId, consumerKnS, defaultError) {
+      this.appId = appId;
+      var pair = atob(consumerKnS).split(/\n/);
+      this.consumerKey = pair[0];
+      this.consumerSecret = pair[1];
+      _loadAccessToken(this);
+      this.defaultError = defaultError || _defaultError;
+      return this;
+    }
+
     // Send OAuth'ed request
-    request: function(method, url, data, responseType, success, error) {
+    ,request: function(method, url, data, responseType, success, error) {
       var message = _oauthMessage(this, method, url, data);
       _xhrRequest(method, url, OAuth.getParameterMap(message.parameters),
                   responseType, success, error || this.defaultError);
@@ -372,6 +376,9 @@ var OAuthRequest = (function() {
       _resetTokens(this);
     }
   };
+
+  for (var name in _methods)
+    _class.prototype[name] = _methods[name];
 
   return _class;
 })();

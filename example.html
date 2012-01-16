@@ -165,6 +165,16 @@
     </div>
     <hr>
     <div>
+      <h2>getRevisions</h2>
+      <p>Get revisions of the item (file or folder).</p>
+      <pre>dropbox-&gt;getRevisions(
+  &quot;<input type="text" class="path" value="/">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetRevisions(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
       <h2>getFolderContents</h2>
       <p>Get metadeta of the folder and of items in it.</p>
       <pre>dropbox-&gt;getFolderContents(
@@ -192,6 +202,17 @@
   &quot;<input type="text" class="path" value="/test.txt">&quot;,
   success, error);</pre>
       <button onclick="exampleGetFile(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>restoreFile</h2>
+      <p>Restore file content specified revision.</p>
+      <pre>dropbox-&gt;restoreFile(
+  &quot;<input type="text" class="path" value="/">&quot;,
+  &quot;<input type="text" class="rev" value="/">&quot;,
+  success, error);</pre>
+      <button onclick="exampleRestoreFile(this)">Run</button>
       <div class="result"></div>
     </div>
     <hr>
@@ -248,10 +269,41 @@
     </div>
     <hr>
     <div>
+      <h2>createShares</h2>
+      <p>Create share items.</p>
+      <pre>dropbox-&gt;createShares(
+  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  success, error);</pre>
+      <button onclick="exampleCreateShares(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>getDirectLink</h2>
+      <p>Get direct link.</p>
+      <pre>dropbox-&gt;getDirectLink(
+  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  success, error);</pre>
+      <button onclick="exampleGetDirectLink(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
+      <h2>search</h2>
+      <p>Seach items.</p>
+      <pre>dropbox-&gt;seach(
+  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  &quot;<input type="text" class="query">&quot;,
+  success, error);</pre>
+      <button onclick="exampleSearch(this)">Run</button>
+      <div class="result"></div>
+    </div>
+    <hr>
+    <div>
       vmi.jp
     </div>
     <script>
-      init();
+      initialize();
     </script>
   </body>
 </html>
