@@ -50,6 +50,29 @@ var Dropbox = (function(OAuthRequest) {
     return path.replace(/[\\\/]+/g, "/").replace(/^\//, "");
   };
 
+  var _utf8Length = function(s) {
+    var len = s.length;
+    var u8len = 0;
+    for (var i = 0; i < len; i++) {
+      var c = s.charCodeAt(i);
+      if (c <= 0x007f) {
+        u8len++;
+      } else if (c <= 0x07ff) {
+        u8len += 2;
+      } else if (c <= 0xd7ff || 0xe000 <= c) {
+        u8len += 3;
+      } else if (c <= 0xdbff) { // high-surrogate code
+        c = s.charCodeAt(++i);
+        if (c < 0xdd00 || 0xdfff < c) // low-surrogate code?
+          throw "Error: Invalid UTF-16 sequence. Missing low-surrogate code.";
+        u8len += 4;
+      } else /* if (c <= 0xdfff) */ { // low-surrogate code
+        throw "Error: Invalid UTF-16 sequence. Missing high-surrogate code.";
+      }
+    }
+    return u8len;
+  };
+
   //
   // Class Definition
   //
@@ -95,7 +118,7 @@ var Dropbox = (function(OAuthRequest) {
       path = _canonPath(path);
       var url = _API_URL + "metadata/dropbox/" + encodeURI(path);
       this.request("GET", url,
-                   { list: false, status_in_response: true, locale: "en" },
+                   { list: false, locale: "en" },
                    OAuthRequest.RT_JSON, success, error);
     }
 
@@ -120,8 +143,7 @@ var Dropbox = (function(OAuthRequest) {
       path = _canonPath(path);
       var url = _API_URL + "metadata/dropbox/" + encodeURI(path);
       this.request("GET", url,
-                   { file_limit: 1000, list: true, status_in_response: true,
-                     locale: "en" },
+                   { file_limit: 1000, list: true, locale: "en" },
                    OAuthRequest.RT_JSON, success, error);
     }
 

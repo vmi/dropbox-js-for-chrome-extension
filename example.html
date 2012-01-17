@@ -65,12 +65,12 @@
       <p>manifest.json of this extension is follows:</p>
       <pre>{
   &quot;name&quot;: &quot;dropbox.js example extension&quot;,
-  &quot;version&quot;: &quot;0.1&quot;,
+  &quot;version&quot;: &quot;0.2&quot;,
   &quot;description&quot;: &quot;Example of Dropbox JS for Chrome Extension.&quot;,
   &quot;app&quot;: { &quot;launch&quot;: { &quot;local_path&quot;: &quot;example.html&quot; } },
 <span class="em">  &quot;content_scripts&quot;: [
     {
-      &quot;matches&quot;: [&quot;https://www.dropbox.com/0/oauth/authorize*&quot;],
+      &quot;matches&quot;: [&quot;https://www.dropbox.com/1/oauth/authorize*&quot;],
       &quot;js&quot;: [&quot;dropbox-authorize.js&quot;]
     }
   ],
@@ -82,7 +82,8 @@
     &quot;https://api-content.dropbox.com/&quot;
   ]</span>
 }</pre>
-
+      <p>The black part is required for this example only.</p>
+      <p>The red part is required for dropbox.js library.</p>
     </div>
     <div>
       <h2>Import JS libraries</h2>
@@ -93,7 +94,7 @@
     </div>
     <hr>
     <div>
-      <h2>Callback functions</h2>
+      <h2>Callback functions YOU NEED IMPLEMENT</h2>
       <h3>success</h3>
       <p>This function called when accepted your request.</p>
       <pre>function success(result, xhr) {
@@ -114,15 +115,15 @@
     <div>
       <h2>Create base64 encoded consumer key and secret</h2>
       <p>Simple masking consumer key and secret.</p>
-      <pre>btoa(&quot;<input type="text" id="consumerKey" size="15">&quot; + &quot;\n&quot; +
-     &quot;<input type="text" id="consumerSecret" size="15">&quot;)
+      <pre>btoa(&quot;<input type="text" id="consumerKey" size="15">&quot; /* consumer key (app key) */ + &quot;\n&quot; +
+     &quot;<input type="text" id="consumerSecret" size="15">&quot; /* consumer secret (app secret) */ )
 ⇒ &quot;<input type="text" id="consumerKnS" size="50">&quot;</pre>
       <button onclick="createConsumerKnS()">Run</button> (In this example, store base64 encoded consumer key and secret to localStorage)<br>
       <button onclick="clearKey()">Clear</button> Clear base64 encoded consumer key and secret from localStorage.
     <hr>
     <div>
       <h2>Construct Dropbox object</h2>
-      <pre>var dropbox = new Dropbox(
+      <pre>var dropbox = new Dropbox().initialize(
   &quot;<input type="text" id="consumerKnS2" size="50">&quot;
 ); // base64 encoded consumer key and secret</pre>
       <button onclick="construct()">Run</button><br><br>
@@ -166,9 +167,9 @@
     <hr>
     <div>
       <h2>getRevisions</h2>
-      <p>Get revisions of the item (file or folder).</p>
+      <p>Get revisions of the file (not folder).</p>
       <pre>dropbox-&gt;getRevisions(
-  &quot;<input type="text" class="path" value="/">&quot;,
+  &quot;<input type="text" class="path" value="/Getting Started.pdf">&quot;,
   success, error);</pre>
       <button onclick="exampleGetRevisions(this)">Run</button>
       <div class="result"></div>
