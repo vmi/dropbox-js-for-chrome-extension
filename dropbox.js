@@ -50,29 +50,6 @@ var Dropbox = (function(OAuthRequest) {
     return path.replace(/[\\\/]+/g, "/").replace(/^\//, "");
   };
 
-  var _utf8Length = function(s) {
-    var len = s.length;
-    var u8len = 0;
-    for (var i = 0; i < len; i++) {
-      var c = s.charCodeAt(i);
-      if (c <= 0x007f) {
-        u8len++;
-      } else if (c <= 0x07ff) {
-        u8len += 2;
-      } else if (c <= 0xd7ff || 0xe000 <= c) {
-        u8len += 3;
-      } else if (c <= 0xdbff) { // high-surrogate code
-        c = s.charCodeAt(++i);
-        if (c < 0xdd00 || 0xdfff < c) // low-surrogate code?
-          throw "Error: Invalid UTF-16 sequence. Missing low-surrogate code.";
-        u8len += 4;
-      } else /* if (c <= 0xdfff) */ { // low-surrogate code
-        throw "Error: Invalid UTF-16 sequence. Missing high-surrogate code.";
-      }
-    }
-    return u8len;
-  };
-
   //
   // Class Definition
   //
@@ -86,6 +63,7 @@ var Dropbox = (function(OAuthRequest) {
   // Method Definitions
   //
   var _methods = {
+
     // Initialize
     initialize: function(consumerKnS, defaultError) {
       this.__super__.initialize.call(this, "Dropbox", consumerKnS, defaultError);
@@ -155,14 +133,14 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Upload file content (UTF-8 text only)
-    ,uploadFile: function(path, content, success, error) {
-      var matched = _canonPath(path).match(/^(.*?)([^\/]+)$/);
-      var dir = matched[1];
-      var filename = matched[2];
-      var url = _CNT_URL + "files/dropbox/" + encodeURI(dir) +
-            "?file=" + encodeURI(filename);
-      this.requestMultipart(url, filename, content, { locale: "en" },
-                            success, error);
+    ,uploadFile: function(path, opts, content, success, error) {
+      path = _canonPath(path);
+      var url = _CNT_URL + "files_put/dropbox/" + encodeURI(path);
+      var params = { locale: "en" };
+      for (var key in opts)
+        params[key] = opts[key];
+      this.request("PUT", url, [params, content], OAuthRequest.RT_JSON,
+                   success, error);
     }
 
     // Get thumbnail image (result type is Blob)
@@ -224,13 +202,18 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
-    // Search
-    ,search: function(path, query, success, error) {
-      path = _canonPath(path);
-      var url = _API_URL + "search/dropbox/" + encodeURI(path);
-      this.request("POST", url, { query: query, locale: "en" },
-                   OAuthRequest.RT_JSON, success, error);
-    }
+// Note:
+// don't work "search" API on Google Chrome, because it's XHR
+// does not support response of "Transfer-Encoding: chunked".
+//
+//    // Search
+//    ,search: function(path, query, success, error) {
+//      path = _canonPath(path);
+//      var url = _API_URL + "search/dropbox/" + encodeURI(path);
+//      this.request("POST", url, { query: query, locale: "en" },
+//                   OAuthRequest.RT_JSON, success, error);
+//    }
+
   };
 
   for (var name in _methods)

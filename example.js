@@ -198,7 +198,7 @@ function exampleGetThumbnail(button) {
 function exampleUploadFile(button) {
   var path = getElem(button, "path").val();
   var text = getElem(button, "text").val();
-  dropbox.uploadFile(path, text, function(data) {
+  dropbox.uploadFile(path, null, text, function(data) {
     showResult(button, data);
   });
 }

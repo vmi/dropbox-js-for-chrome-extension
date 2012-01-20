@@ -101,6 +101,29 @@ var OAuthRequest = (function() {
     return message;
   };
 
+  var _utf8Length = function(s) {
+    var len = s.length;
+    var u8len = 0;
+    for (var i = 0; i < len; i++) {
+      var c = s.charCodeAt(i);
+      if (c <= 0x007f) {
+        u8len++;
+      } else if (c <= 0x07ff) {
+        u8len += 2;
+      } else if (c <= 0xd7ff || 0xe000 <= c) {
+        u8len += 3;
+      } else if (c <= 0xdbff) { // high-surrogate code
+        c = s.charCodeAt(++i);
+        if (c < 0xdd00 || 0xdfff < c) // low-surrogate code?
+          throw "Error: Invalid UTF-16 sequence. Missing low-surrogate code.";
+        u8len += 4;
+      } else /* if (c <= 0xdfff) */ { // low-surrogate code
+        throw "Error: Invalid UTF-16 sequence. Missing high-surrogate code.";
+      }
+    }
+    return u8len;
+  };
+
   var _indent = function(level) {
     var indent = "";
     for (var i = 0; i < level; ++i)
@@ -132,21 +155,39 @@ var OAuthRequest = (function() {
   };
 
   //  responseType = RT_JSON, RT_TEXT or RT_ARRAYBUFFER
-  var _xhrRequest = function(method, url, data, responseType, success, error) {
+  var _xhrRequest = function(method, url, params, body, responseType,
+                             success, error) {
     var xhr = new XMLHttpRequest();
-    var qs = null;
-    if (data) {
-      var qslist = [];
-      for (var key in data)
-        qslist.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
-      if (qslist.length > 0)
-        qs = qslist.join("&").replace(/%20/g, "+");
+    var ctype = null;
+    if (params) {
+      var pList = [];
+      for (var key in params)
+        pList.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
+      params = (pList.length > 0) ? pList.join("&").replace(/%20/g, "+") : null;
     }
-    if (method == "GET" && qs) {
-      url += "?" + qs;
-      qs = null;
+    switch (method) {
+    case "GET": case "HEAD":
+      if (params)
+        url += "?" + params;
+      break;
+
+    case "POST":
+      ctype = "application/x-www-form-urlencoded";
+      body = params;
+      break;
+
+    case "PUT":
+      if (params)
+        url += "?" + params;
+      ctype = "application/octet-stream";
+      break;
+
+    default:
+      break;
     }
     xhr.open(method, url, true);
+    if (ctype)
+      xhr.setRequestHeader("Content-Type", ctype); // can't call before open
     switch (responseType) {
     case RT_JSON:
       xhr.setRequestHeader("Accept", "application/json, */*");
@@ -197,71 +238,6 @@ var OAuthRequest = (function() {
         }
       }
     };
-    if (qs) {
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.send(qs);
-    } else {
-      xhr.send();
-    }
-  };
-
-  var _randHex7 = function() {
-    // The accuracy of Math.random() in Chrome is 30bits?
-    return ("000000" + Math.floor(Math.random() * (1 << 28)).toString(16)).slice(-7);
-  };
-
-  var _generateBoundary = function() {
-    // 34 + (7 + 2) * 5 = 70
-    return "----------------------------------" +
-      _randHex7() + "--" +
-      _randHex7() + "--" +
-      _randHex7() + "--" +
-      _randHex7() + "--";
-  };
-
-  var _xhrRequestMultipart = function(url, data, filename, content, success, error) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Accept", "application/json, */*");
-
-    xhr.onreadystatechange = function() {
-      // readyState: 0=UNSENT,1=OPENED,2=HEADERS_RECEIVED,3=LOADING,4=DONE
-      if (this.readyState == 4) {
-        var result = this.responseText;
-        try {
-          result = JSON.parse(result);
-        } catch (e) {
-          // no operation
-        }
-        if (this.status == 200) // OK
-          success(result, this);
-        else // Error
-          error(result, this);
-      }
-    };
-
-    var boundary;
-    do {
-      boundary = _generateBoundary();
-    } while (content.indexOf(boundary) >= 0);
-    xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-
-    var body = "";
-    for (var key in data) {
-      var value = data[key];
-      body += "--" + boundary + _CRLF +
-        'Content-Disposition: form-data; name="' + key + '"' + _CRLF +
-        _CRLF +
-        value + _CRLF;
-    }
-    body += "--" + boundary + _CRLF +
-      'Content-Disposition: form-data; name=file; filename="' + filename + '"' + _CRLF +
-      "Content-type: application/octet-stream" + _CRLF +
-      _CRLF +
-      content + _CRLF +
-      "--" + boundary + "--";
-
     xhr.send(body);
   };
 
@@ -294,19 +270,14 @@ var OAuthRequest = (function() {
 
     // Send OAuth'ed request
     ,request: function(method, url, data, responseType, success, error) {
+      var body = null;
+      if (data instanceof Array) {
+        body = data[1];
+        data = data[0];
+      }
       var message = _oauthMessage(this, method, url, data);
       _xhrRequest(method, url, OAuth.getParameterMap(message.parameters),
-                  responseType, success, error || this.defaultError);
-    }
-
-    // Send OAuth'ed multipart request (POST only)
-    ,requestMultipart: function(url, filename, content, data, success, error) {
-      var message = _oauthMessage(this, "POST", url);
-      var prm = message.parameters;
-      for (var key in data)
-        prm[key] = data[key];
-      _xhrRequestMultipart(url, prm, filename, content,
-                           success, error || this.defaultError);
+                  body, responseType, success, error || this.defaultError);
     }
 
     // Authorize

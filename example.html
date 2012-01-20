@@ -189,8 +189,8 @@
       <h2>uploadFile</h2>
       <p>Upload text file (UTF-8 only).</p>
       <pre>dropbox-&gt;uploadFile(
-  &quot;<input type="text" class="path" value="/test.txt">&quot;,
-  &quot;<textarea class="text">test message.</textarea>&quot;,
+  &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
+  &quot;<textarea class="text">test message.</textarea>&quot; /* text content */,
   success, error);</pre>
       <button onclick="exampleUploadFile(this)">Run</button>
       <div class="result"></div>
@@ -210,8 +210,8 @@
       <h2>restoreFile</h2>
       <p>Restore file content specified revision.</p>
       <pre>dropbox-&gt;restoreFile(
-  &quot;<input type="text" class="path" value="/">&quot;,
-  &quot;<input type="text" class="rev" value="/">&quot;,
+  &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
+  &quot;<input type="text" class="rev" value="">&quot; /* rev */,
   success, error);</pre>
       <button onclick="exampleRestoreFile(this)">Run</button>
       <div class="result"></div>
@@ -273,7 +273,7 @@
       <h2>createShares</h2>
       <p>Create share items.</p>
       <pre>dropbox-&gt;createShares(
-  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
       <button onclick="exampleCreateShares(this)">Run</button>
       <div class="result"></div>
@@ -283,23 +283,26 @@
       <h2>getDirectLink</h2>
       <p>Get direct link.</p>
       <pre>dropbox-&gt;getDirectLink(
-  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
+  &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
       <button onclick="exampleGetDirectLink(this)">Run</button>
       <div class="result"></div>
     </div>
     <hr>
+    <!-- don't work "search" API on Google Chrome, because it's XHR
+         does not support response of "Transfer-Encoding: chunked".
     <div>
       <h2>search</h2>
       <p>Seach items.</p>
       <pre>dropbox-&gt;seach(
-  &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
-  &quot;<input type="text" class="query">&quot;,
+  &quot;<input type="text" class="path" value="/sandbox/">&quot; /* path */,
+  &quot;<input type="text" class="query">&quot; /* query */,
   success, error);</pre>
       <button onclick="exampleSearch(this)">Run</button>
       <div class="result"></div>
     </div>
     <hr>
+    -->
     <div>
       vmi.jp
     </div>
