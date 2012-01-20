@@ -202,17 +202,13 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
-// Note:
-// don't work "search" API on Google Chrome, because it's XHR
-// does not support response of "Transfer-Encoding: chunked".
-//
-//    // Search
-//    ,search: function(path, query, success, error) {
-//      path = _canonPath(path);
-//      var url = _API_URL + "search/dropbox/" + encodeURI(path);
-//      this.request("POST", url, { query: query, locale: "en" },
-//                   OAuthRequest.RT_JSON, success, error);
-//    }
+    // Search
+    ,search: function(path, query, success, error) {
+      path = _canonPath(path);
+      var url = _API_URL + "search/dropbox/" + encodeURI(path);
+      this.request("POST", url, { query: query, locale: "en" },
+                   OAuthRequest.RT_JSON, success, error);
+    }
 
   };
 

@@ -40,6 +40,7 @@ function object2table(data) {
     img.src = webkitURL.createObjectURL(data);
     table.append($("<tr/>").append($("<td/>").append(img)));
   } else {
+    var isEmpty = true;
     for (var k in data) {
       var v = data[k];
       var th = $("<th/>").text(k);
@@ -50,7 +51,10 @@ function object2table(data) {
 	td.html(object2table(v));
       }
       table.append($("<tr/>").append(th, td));
+      isEmpty = false;
     }
+    if (isEmpty)
+      table.append($("<tr><td>Empty.</td></tr>"));
   }
   return table;
 }
