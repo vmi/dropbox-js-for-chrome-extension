@@ -1,5 +1,8 @@
 List of licenses:
 
+- my products
+  License: The BSD 2-Clause License
+
 - sha1.js (from jshash-2.2)
   http://pajhome.org.uk/crypt/md5/
   -> http://pajhome.org.uk/crypt/md5/scripts.html
@@ -14,6 +17,3 @@ List of licenses:
 - jquery.js (from jQuery 1.6.2)
   http://jquery.org/
   License: MIT & GPL V2 Licenses
-
-- others
-  License: The BSD 2-Clause License

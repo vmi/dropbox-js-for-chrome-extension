@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, IWAMURO Motonori
+ * Copyright (c) 2011-2012, IWAMURO Motonori
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -65,13 +65,13 @@ var Dropbox = (function(OAuthRequest) {
   var _methods = {
 
     // Initialize
-    initialize: function(consumerKnS, defaultError) {
+    initialize: function initialize(consumerKnS, defaultError) {
       this.__super__.initialize.call(this, "Dropbox", consumerKnS, defaultError);
       return this;
     }
 
     // Authorize
-    ,authorize: function(success, error) {
+    ,authorize: function authorize(success, error) {
       this.__super__.authorize.call(this, {
         requestTokenUrl: _API_URL + "oauth/request_token",
         accessTokenUrl: _API_URL + "oauth/access_token",
@@ -85,14 +85,14 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get account information
-    ,getAccountInfo: function(success, error) {
+    ,getAccountInfo: function getAccountInfo(success, error) {
       var url = _API_URL + "account/info";
       this.request("GET", url, { locale: "en" },
                    OAuthRequest.RT_JSON, success, error);
     }
 
     // Get metadata
-    ,getMetadata: function(path, success, error) {
+    ,getMetadata: function getMetadata(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "metadata/dropbox/" + encodeURI(path);
       this.request("GET", url,
@@ -101,7 +101,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get revisions
-    ,getRevisions: function(path, success, error) {
+    ,getRevisions: function getRevisions(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "revisions/dropbox/" + encodeURI(path);
       this.request("GET", url, { locale: "en" },
@@ -109,7 +109,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Restore file
-    ,restoreFile: function(path, rev, success, error) {
+    ,restoreFile: function restoreFile(path, rev, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "restore/dropbox/" + encodeURI(path);
       this.request("GET", url, { rev: rev, locale: "en" },
@@ -117,7 +117,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get metadata with item list
-    ,getFolderContents: function(path, success, error) {
+    ,getFolderContents: function getFolderContents(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "metadata/dropbox/" + encodeURI(path);
       this.request("GET", url,
@@ -126,14 +126,14 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get file content
-    ,getFile: function(path, success, error) {
+    ,getFile: function getFile(path, success, error) {
       path = _canonPath(path);
       var url = _CNT_URL + "files/dropbox/" + encodeURI(path);
       this.request("GET", url, null, OAuthRequest.RT_TEXT, success, error);
     }
 
     // Upload file content (UTF-8 text only)
-    ,uploadFile: function(path, opts, content, success, error) {
+    ,uploadFile: function uploadFile(path, opts, content, success, error) {
       path = _canonPath(path);
       var url = _CNT_URL + "files_put/dropbox/" + encodeURI(path);
       var params = { locale: "en" };
@@ -144,7 +144,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get thumbnail image (result type is Blob)
-    ,getThumbnail: function(path, size, format, success, error) {
+    ,getThumbnail: function getThumbnail(path, size, format, success, error) {
       path = _canonPath(path);
       var url = _CNT_URL + "thumbnails/dropbox/" + encodeURI(path);
       this.request("GET", url,
@@ -153,7 +153,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Create folder
-    ,createFolder: function(path, success, error) {
+    ,createFolder: function createFolder(path, success, error) {
       path = _canonPath(path);
       this.request("POST", _API_URL + "fileops/create_folder",
                    { root: "dropbox", path: path },
@@ -161,7 +161,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Copy item
-    ,copyItem: function(fromPath, toPath, success, error) {
+    ,copyItem: function copyItem(fromPath, toPath, success, error) {
       fromPath = _canonPath(fromPath);
       toPath = _canonPath(toPath);
       this.request("POST", _API_URL + "fileops/copy",
@@ -170,7 +170,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Move item
-    ,moveItem: function(fromPath, toPath, success, error) {
+    ,moveItem: function moveItem(fromPath, toPath, success, error) {
       fromPath = _canonPath(fromPath);
       toPath = _canonPath(toPath);
       this.request("POST", _API_URL + "fileops/move",
@@ -179,7 +179,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Delete item
-    ,deleteItem: function(path, success, error) {
+    ,deleteItem: function deleteItem(path, success, error) {
       path = _canonPath(path);
       this.request("POST", _API_URL + "fileops/delete",
                    { root: "dropbox", path: path },
@@ -187,7 +187,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Create shareable link
-    ,createShares: function(path, success, error) {
+    ,createShares: function createShares(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "shares/dropbox/" + encodeURI(path);
       this.request("POST", url, { locale: "en" },
@@ -195,7 +195,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get direct link
-    ,getDirectLink: function(path, success, error) {
+    ,getDirectLink: function getDirectLink(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "media/dropbox/" + encodeURI(path);
       this.request("POST", url, { locale: "en" },
@@ -203,7 +203,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Search
-    ,search: function(path, query, success, error) {
+    ,search: function search(path, query, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "search/dropbox/" + encodeURI(path);
       this.request("POST", url, { query: query, locale: "en" },

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, IWAMURO Motonori
+ * Copyright (c) 2011-2012, IWAMURO Motonori
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without

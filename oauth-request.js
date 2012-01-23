@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, IWAMURO Motonori
+ * Copyright (c) 2011-2012, IWAMURO Motonori
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -101,29 +101,6 @@ var OAuthRequest = (function() {
     return message;
   };
 
-  var _utf8Length = function(s) {
-    var len = s.length;
-    var u8len = 0;
-    for (var i = 0; i < len; i++) {
-      var c = s.charCodeAt(i);
-      if (c <= 0x007f) {
-        u8len++;
-      } else if (c <= 0x07ff) {
-        u8len += 2;
-      } else if (c <= 0xd7ff || 0xe000 <= c) {
-        u8len += 3;
-      } else if (c <= 0xdbff) { // high-surrogate code
-        c = s.charCodeAt(++i);
-        if (c < 0xdd00 || 0xdfff < c) // low-surrogate code?
-          throw "Error: Invalid UTF-16 sequence. Missing low-surrogate code.";
-        u8len += 4;
-      } else /* if (c <= 0xdfff) */ { // low-surrogate code
-        throw "Error: Invalid UTF-16 sequence. Missing high-surrogate code.";
-      }
-    }
-    return u8len;
-  };
-
   var _indent = function(level) {
     var indent = "";
     for (var i = 0; i < level; ++i)
@@ -179,7 +156,8 @@ var OAuthRequest = (function() {
     case "PUT":
       if (params)
         url += "?" + params;
-      ctype = "application/octet-stream";
+      if (typeof body === "string")
+        ctype = "text/plain; charset=UTF-8";
       break;
 
     default:
@@ -258,7 +236,7 @@ var OAuthRequest = (function() {
   //
   var _methods = {
     // Initialize
-    initialize: function(appId, consumerKnS, defaultError) {
+    initialize: function initialize(appId, consumerKnS, defaultError) {
       this.appId = appId;
       var pair = atob(consumerKnS).split(/\n/);
       this.consumerKey = pair[0];
@@ -269,7 +247,7 @@ var OAuthRequest = (function() {
     }
 
     // Send OAuth'ed request
-    ,request: function(method, url, data, responseType, success, error) {
+    ,request: function request(method, url, data, responseType, success, error) {
       var body = null;
       if (data instanceof Array) {
         body = data[1];
@@ -281,7 +259,7 @@ var OAuthRequest = (function() {
     }
 
     // Authorize
-    ,authorize: function(oauth, success, error) {
+    ,authorize: function authorize(oauth, success, error) {
       if (this.accessToken) {
         success();
         return;
@@ -343,7 +321,7 @@ var OAuthRequest = (function() {
     }
 
     // Unauthorize
-    ,unauthorize: function() {
+    ,unauthorize: function unauthorize() {
       _resetTokens(this);
     }
   };

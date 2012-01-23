@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###
+### JavaScript syntax checker using Google Closure Compiler
+###
+
 cljar=../google-closure-compiler/compiler.jar
 
 if java -version 2> /dev/null; then
