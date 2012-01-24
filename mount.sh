@@ -47,7 +47,7 @@ case "$1" in
   ;;
 esac
 
-if [ -f $mp ]; then
+if [ -f $mp -a $(subst | wc -l) -gt 0 ]; then
   echo "Error: already mounted."
   subst
   exit 1

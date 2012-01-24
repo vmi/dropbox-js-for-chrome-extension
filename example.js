@@ -132,8 +132,8 @@ function exampleAuthorize(button) {
   });
 }
 
-function exampleUnauthorize(button) {
-  dropbox.unauthorize();
+function exampleDeauthorize(button) {
+  dropbox.deauthorize();
   var data = {
     requestToken: dropbox.requestToken,
     requestTokenSecret: dropbox.requestTokenSecret,
@@ -170,24 +170,24 @@ function exampleGetRevisions(button) {
   });
 }
 
-function exampleRestoreFile(button) {
+function exampleRestoreFileContents(button) {
   var path = getElem(button, "path").val();
   var rev = getElem(button, "rev").val();
-  dropbox.restoreFile(path, rev, function(data) {
+  dropbox.restoreFileContents(path, rev, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetFolderContents(button) {
+function exampleGetDirectoryContents(button) {
   var path = getElem(button, "path").val();
-  dropbox.getFolderContents(path, function(data) {
+  dropbox.getDirectoryContents(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetFile(button) {
+function exampleGetFileContents(button) {
   var path = getElem(button, "path").val();
-  dropbox.getFile(path, function(data) {
+  dropbox.getFileContents(path, function(data) {
     showResult(button, data);
   });
 }
@@ -199,40 +199,40 @@ function exampleGetThumbnail(button) {
   });
 }
 
-function exampleUploadFile(button) {
+function examplePutFileContents(button) {
   var path = getElem(button, "path").val();
   var text = getElem(button, "text").val();
-  dropbox.uploadFile(path, null, text, function(data) {
+  dropbox.putFileContents(path, text, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleCreateFolder(button) {
+function exampleCreateDirectory(button) {
   var path = getElem(button, "path").val();
-  dropbox.createFolder(path, function(data) {
+  dropbox.createDirectory(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleMoveItem(button) {
+function exampleMovePath(button) {
   var fromPath = getElem(button, "fromPath").val();
   var toPath = getElem(button, "toPath").val();
-  dropbox.moveItem(fromPath, toPath, function(data) {
+  dropbox.movePath(fromPath, toPath, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleCopyItem(button) {
+function exampleCopyPath(button) {
   var fromPath = getElem(button, "fromPath").val();
   var toPath = getElem(button, "toPath").val();
-  dropbox.copyItem(fromPath, toPath, function(data) {
+  dropbox.copyPath(fromPath, toPath, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleDeleteItem(button) {
+function exampleDeletePath(button) {
   var path = getElem(button, "path").val();
-  dropbox.deleteItem(path, function(data) {
+  dropbox.deletePath(path, function(data) {
     showResult(button, data);
   });
 }

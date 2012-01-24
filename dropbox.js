@@ -41,6 +41,10 @@ var Dropbox = (function(OAuthRequest) {
   //   Control-Code, [:] [,] [;] [*] [?] ["] [<] [>] [|]
   var _INVALID_PATH_NAME_PATTERN = /[\x00-\x1f\x7f:,;*?\"<>|]/;
 
+  // Authorize page size
+  var _WIDTH = 900;
+  var _HEIGHT = 600;
+
   //
   // Private functions
   //
@@ -53,10 +57,15 @@ var Dropbox = (function(OAuthRequest) {
   //
   // Class Definition
   //
-  var _class = function Dropbox() {};
+  var _class = function Dropbox() {
+    if (arguments.length == 0)
+      return;
+    this.initialize.apply(this, arguments);
+  };
 
   // Inherit from OAuthRequest
   _class.prototype = new OAuthRequest();
+  _class.prototype.constructor = OAuthRequest;
   _class.prototype.__super__ = OAuthRequest.prototype;
 
   //
@@ -65,8 +74,8 @@ var Dropbox = (function(OAuthRequest) {
   var _methods = {
 
     // Initialize
-    initialize: function initialize(consumerKnS, defaultError) {
-      this.__super__.initialize.call(this, "Dropbox", consumerKnS, defaultError);
+    initialize: function initialize(consumerKey, consumerSecret) {
+      this.__super__.initialize.call(this, "Dropbox", consumerKey, consumerSecret);
       return this;
     }
 
@@ -79,7 +88,7 @@ var Dropbox = (function(OAuthRequest) {
           url: function(requestToken) {
             return _WWW_URL + "oauth/authorize?oauth_token=" + requestToken;
           },
-          width: 900, height: 600
+          width: _WIDTH, height: _HEIGHT
         }
       }, success, error);
     }
@@ -108,8 +117,8 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
-    // Restore file
-    ,restoreFile: function restoreFile(path, rev, success, error) {
+    // Restore file content
+    ,restoreFileContents: function restoreFileContents(path, rev, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "restore/dropbox/" + encodeURI(path);
       this.request("GET", url, { rev: rev, locale: "en" },
@@ -117,7 +126,7 @@ var Dropbox = (function(OAuthRequest) {
     }
 
     // Get metadata with item list
-    ,getFolderContents: function getFolderContents(path, success, error) {
+    ,getDirectoryContents: function getDirectoryContents(path, success, error) {
       path = _canonPath(path);
       var url = _API_URL + "metadata/dropbox/" + encodeURI(path);
       this.request("GET", url,
@@ -125,22 +134,30 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
+    // Put file content (UTF-8 text only)
+    //   dropbox.putFileContents(PATH, CONTENT, SUCCESS <, ERROR>);
+    //     or
+    //   dropbox.putFileContents(PATH, [OPTIONS, CONTENT], SUCCESS <, ERROR>);
+    //   OPTIONS = {
+    //     overwrite: true|false,
+    //     parent_rev: REV
+    //   }
+    ,putFileContents: function putFileContents(path, content, success, error) {
+      path = _canonPath(path);
+      var url = _CNT_URL + "files_put/dropbox/" + encodeURI(path);
+      if (content instanceof Array)
+        content[0].locale = "en";
+      else
+        content = [{ locale: "en" }, content];
+      this.request("PUT", url, content, OAuthRequest.RT_JSON,
+                   success, error);
+    }
+
     // Get file content
-    ,getFile: function getFile(path, success, error) {
+    ,getFileContents: function getFileContents(path, success, error) {
       path = _canonPath(path);
       var url = _CNT_URL + "files/dropbox/" + encodeURI(path);
       this.request("GET", url, null, OAuthRequest.RT_TEXT, success, error);
-    }
-
-    // Upload file content (UTF-8 text only)
-    ,uploadFile: function uploadFile(path, opts, content, success, error) {
-      path = _canonPath(path);
-      var url = _CNT_URL + "files_put/dropbox/" + encodeURI(path);
-      var params = { locale: "en" };
-      for (var key in opts)
-        params[key] = opts[key];
-      this.request("PUT", url, [params, content], OAuthRequest.RT_JSON,
-                   success, error);
     }
 
     // Get thumbnail image (result type is Blob)
@@ -152,16 +169,16 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_ARRAYBUFFER, success, error);
     }
 
-    // Create folder
-    ,createFolder: function createFolder(path, success, error) {
+    // Create directory
+    ,createDirectory: function createDirectory(path, success, error) {
       path = _canonPath(path);
       this.request("POST", _API_URL + "fileops/create_folder",
                    { root: "dropbox", path: path },
                    OAuthRequest.RT_JSON, success, error);
     }
 
-    // Copy item
-    ,copyItem: function copyItem(fromPath, toPath, success, error) {
+    // Copy path
+    ,copyPath: function copyPath(fromPath, toPath, success, error) {
       fromPath = _canonPath(fromPath);
       toPath = _canonPath(toPath);
       this.request("POST", _API_URL + "fileops/copy",
@@ -169,8 +186,8 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
-    // Move item
-    ,moveItem: function moveItem(fromPath, toPath, success, error) {
+    // Move path
+    ,movePath: function movePath(fromPath, toPath, success, error) {
       fromPath = _canonPath(fromPath);
       toPath = _canonPath(toPath);
       this.request("POST", _API_URL + "fileops/move",
@@ -178,8 +195,8 @@ var Dropbox = (function(OAuthRequest) {
                    OAuthRequest.RT_JSON, success, error);
     }
 
-    // Delete item
-    ,deleteItem: function deleteItem(path, success, error) {
+    // Delete path
+    ,deletePath: function deletePath(path, success, error) {
       path = _canonPath(path);
       this.request("POST", _API_URL + "fileops/delete",
                    { root: "dropbox", path: path },
@@ -208,6 +225,11 @@ var Dropbox = (function(OAuthRequest) {
       var url = _API_URL + "search/dropbox/" + encodeURI(path);
       this.request("POST", url, { query: query, locale: "en" },
                    OAuthRequest.RT_JSON, success, error);
+    }
+
+    // Logout
+    ,logOutDropbox: function logOutDropbox() {
+      this.deauthorize();
     }
 
   };

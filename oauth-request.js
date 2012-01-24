@@ -125,7 +125,7 @@ var OAuthRequest = (function() {
     return buffer;
   };
 
-  var _defaultError = function(result) {
+  var _defaultError = function(result, status, xhr) {
     var message = _objectToString(result);
     console.log(message);
     alert(message);
@@ -205,14 +205,14 @@ var OAuthRequest = (function() {
           default:
             break;
           }
-          success(result, this);
+          success(result, this.status, this);
         } else { // Error
           try {
             result = JSON.parse(result);
           } catch (e) {
             // ignore
           }
-          error(result, this);
+          error(result, this.status, this);
         }
       }
     };
@@ -236,14 +236,23 @@ var OAuthRequest = (function() {
   //
   var _methods = {
     // Initialize
-    initialize: function initialize(appId, consumerKnS, defaultError) {
+    initialize: function initialize(appId, consumerKey, consumerSecret) {
       this.appId = appId;
-      var pair = atob(consumerKnS).split(/\n/);
-      this.consumerKey = pair[0];
-      this.consumerSecret = pair[1];
+      if (consumerSecret) {
+        this.consumerKey = consumerKey;
+        this.consumerSecret = consumerSecret;
+      } else {
+        var pair = atob(consumerKey).split(/\n/);
+        this.consumerKey = pair[0];
+        this.consumerSecret = pair[1];
+      }
       _loadAccessToken(this);
-      this.defaultError = defaultError || _defaultError;
+      this.defaultError = _defaultError;
       return this;
+    }
+
+    ,setDefaultError: function setDefaultError(defaultError) {
+      this.defaultError = defaultError;
     }
 
     // Send OAuth'ed request
@@ -320,8 +329,8 @@ var OAuthRequest = (function() {
       );
     }
 
-    // Unauthorize
-    ,unauthorize: function unauthorize() {
+    // Deauthorize
+    ,deauthorize: function deauthorize() {
       _resetTokens(this);
     }
   };
