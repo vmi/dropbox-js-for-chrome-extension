@@ -1,14 +1,9 @@
 {
   "name": "dropbox.js example extension",
-  "version": "0.2",
+  "version": "0.3",
+  "manifest_version": 2,
   "description": "Example of Dropbox JS for Chrome Extension.",
   "app": { "launch": { "local_path": "example.html" } },
-  "content_scripts": [
-    {
-      "matches": ["https://www.dropbox.com/1/oauth/authorize*"],
-      "js": ["dropbox-authorize.js"]
-    }
-  ],
   "permissions": [
     "unlimitedStorage",
     "tabs",

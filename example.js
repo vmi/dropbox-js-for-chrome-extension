@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012, IWAMURO Motonori
+ * Copyright (c) 2011-2013, IWAMURO Motonori
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,12 @@ function object2table(data) {
   if (typeof data === "string") {
     table.append($("<tr/>").append($("<td/>").text(data)));
   } else if (data.type && data.type.match("^image/")) {
+    var url =  URL.createObjectURL(data);
     var img = document.createElement("img");
     img.onload = function() {
-      webkitURL.revokeOjbectURL(this.src);
+      URL.revokeObjectURL(url);
     };
-    img.src = webkitURL.createObjectURL(data);
+    img.src = url;
     table.append($("<tr/>").append($("<td/>").append(img)));
   } else {
     var isEmpty = true;
@@ -120,7 +121,8 @@ function clearKey() {
 
 //// Example functions
 
-function exampleAuthorize(button) {
+function exampleAuthorize() {
+  var button = this;
   dropbox.authorize(function() {
     var data = {
       requestToken: dropbox.requestToken,
@@ -132,7 +134,8 @@ function exampleAuthorize(button) {
   });
 }
 
-function exampleDeauthorize(button) {
+function exampleDeauthorize() {
+  var button = this;
   dropbox.deauthorize();
   var data = {
     requestToken: dropbox.requestToken,
@@ -143,34 +146,39 @@ function exampleDeauthorize(button) {
   showResult(button, data);
 }
 
-function exampleGetAccountInfo(button) {
+function exampleGetAccountInfo() {
+  var button = this;
   dropbox.getAccountInfo(function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetMetadata(button) {
+function exampleGetMetadata() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getMetadata(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetRevisions(button) {
+function exampleGetRevisions() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getRevisions(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetRevisions(button) {
+function exampleGetRevisions() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getRevisions(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleRestoreFileContents(button) {
+function exampleRestoreFileContents() {
+  var button = this;
   var path = getElem(button, "path").val();
   var rev = getElem(button, "rev").val();
   dropbox.restoreFileContents(path, rev, function(data) {
@@ -178,28 +186,32 @@ function exampleRestoreFileContents(button) {
   });
 }
 
-function exampleGetDirectoryContents(button) {
+function exampleGetDirectoryContents() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getDirectoryContents(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetFileContents(button) {
+function exampleGetFileContents() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getFileContents(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetThumbnail(button) {
+function exampleGetThumbnail() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getThumbnail(path, "large", "JPEG", function(data) {
     showResult(button, data);
   });
 }
 
-function examplePutFileContents(button) {
+function examplePutFileContents() {
+  var button = this;
   var path = getElem(button, "path").val();
   var text = getElem(button, "text").val();
   dropbox.putFileContents(path, text, function(data) {
@@ -207,14 +219,16 @@ function examplePutFileContents(button) {
   });
 }
 
-function exampleCreateDirectory(button) {
+function exampleCreateDirectory() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.createDirectory(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleMovePath(button) {
+function exampleMovePath() {
+  var button = this;
   var fromPath = getElem(button, "fromPath").val();
   var toPath = getElem(button, "toPath").val();
   dropbox.movePath(fromPath, toPath, function(data) {
@@ -222,7 +236,8 @@ function exampleMovePath(button) {
   });
 }
 
-function exampleCopyPath(button) {
+function exampleCopyPath() {
+  var button = this;
   var fromPath = getElem(button, "fromPath").val();
   var toPath = getElem(button, "toPath").val();
   dropbox.copyPath(fromPath, toPath, function(data) {
@@ -230,31 +245,63 @@ function exampleCopyPath(button) {
   });
 }
 
-function exampleDeletePath(button) {
+function exampleDeletePath() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.deletePath(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleCreateShares(button) {
+function exampleCreateShares() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.createShares(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleGetDirectLink(button) {
+function exampleGetDirectLink() {
+  var button = this;
   var path = getElem(button, "path").val();
   dropbox.getDirectLink(path, function(data) {
     showResult(button, data);
   });
 }
 
-function exampleSearch(button) {
+function exampleSearch() {
+  var button = this;
   var path = getElem(button, "path").val();
   var query = getElem(button, "query").val();
   dropbox.search(path, query, function(data) {
     showResult(button, data);
   });
 }
+
+$(document).ready(function() {
+  jQuery.each([
+    createConsumerKnS,
+    clearKey,
+    construct,
+    exampleDeauthorize,
+    exampleAuthorize,
+    exampleGetAccountInfo,
+    exampleGetMetadata,
+    exampleGetRevisions,
+    exampleGetDirectoryContents,
+    examplePutFileContents,
+    exampleGetFileContents,
+    exampleRestoreFileContents,
+    exampleGetThumbnail,
+    exampleCreateDirectory,
+    exampleMovePath,
+    exampleCopyPath,
+    exampleDeletePath,
+    exampleCreateShares,
+    exampleGetDirectLink,
+    exampleSearch
+  ], function(i, func) {
+    $("#" + func.name).click(func);
+  });
+  initialize();
+});

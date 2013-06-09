@@ -41,10 +41,6 @@ var Dropbox = (function(OAuthRequest) {
   //   Control-Code, [:] [,] [;] [*] [?] ["] [<] [>] [|]
   var _INVALID_PATH_NAME_PATTERN = /[\x00-\x1f\x7f:,;*?\"<>|]/;
 
-  // Authorize page size
-  var _WIDTH = 900;
-  var _HEIGHT = 600;
-
   //
   // Private functions
   //
@@ -87,8 +83,7 @@ var Dropbox = (function(OAuthRequest) {
         authorizePage: {
           url: function(requestToken) {
             return _WWW_URL + "oauth/authorize?oauth_token=" + requestToken;
-          },
-          width: _WIDTH, height: _HEIGHT
+          }
         }
       }, success, error);
     }

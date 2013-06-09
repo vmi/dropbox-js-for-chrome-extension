@@ -69,6 +69,10 @@
   <section>
     <h1>Changes</h1>
     <ul>
+      <li>2013-06-09:<ul>
+        <li>Change manifest version.</li>
+        <li>Adapt to new chrome APIs.</li>
+      </ul></li>
       <li>2012-01-24: API is changed into the upward compatibility of <a href="https://chrome.google.com/webstore/detail/iieeldjdihkpoapgipfkeoddjckopgjg">SourceKit</a>'s <a href="https://github.com/kenotron/sourcekit/blob/master/src/dropbox/dropbox.js">dropbox.js</a>.</li>
     </ul>
   </section>
@@ -86,16 +90,17 @@
     <p>manifest.json of this extension is follows:</p>
     <pre>{
   &quot;name&quot;: &quot;dropbox.js example extension&quot;,
-  &quot;version&quot;: &quot;0.2&quot;,
+  &quot;version&quot;: &quot;0.3&quot;,
+  &quot;manifest_version&quot;: &quot;2&quot;,
   &quot;description&quot;: &quot;Example of Dropbox JS for Chrome Extension.&quot;,
   &quot;app&quot;: { &quot;launch&quot;: { &quot;local_path&quot;: &quot;example.html&quot; } },
-<span class="em">  &quot;content_scripts&quot;: [
+<del>  &quot;content_scripts&quot;: [
     {
       &quot;matches&quot;: [&quot;https://www.dropbox.com/1/oauth/authorize*&quot;],
       &quot;js&quot;: [&quot;dropbox-authorize.js&quot;]
     }
-  ],
-  &quot;permissions&quot;: [</span>
+  ],</del>
+<span class="em">  &quot;permissions&quot;: [</span>
     &quot;unlimitedStorage&quot;,
 <span class="em">    &quot;tabs&quot;,
     &quot;https://www.dropbox.com/&quot;,
@@ -104,7 +109,8 @@
   ]</span>
 }</pre>
     <p>The black part is required for this example only.<br>
-      The <span class="em">red part</span> is required for dropbox.js library.</p>
+       The <span class="em">red part</span> is required for dropbox.js library.<br>
+       The line-through part is required no longer.</p>
   </section>
   <hr>
   <section>
@@ -113,6 +119,11 @@
 &lt;script src=&quot;oauth.js&quot;&gt;&lt;/script&gt;
 &lt;script src=&quot;oauth-request.js&quot;&gt;&lt;/script&gt;
 &lt;script src=&quot;dropbox.js&quot;&gt;&lt;/script&gt;</pre>
+  </section>
+  <hr>
+  <section>
+    <h1>Edit “oauth-callback.html” (Optional)</h1>
+    <p>The page is used for before and after authorizing.</p>
   </section>
   <hr>
   <section>
@@ -146,8 +157,8 @@
     <pre>btoa(&quot;<input type="text" id="consumerKey" size="15">&quot; /* consumer key (app key) */ + &quot;\n&quot; +
      &quot;<input type="text" id="consumerSecret" size="15">&quot; /* consumer secret (app secret) */ )
 ⇒ &quot;<input type="text" id="consumerKnS" size="50">&quot;</pre>
-    <button onclick="createConsumerKnS()">Run</button> (In this example, store base64 encoded consumer key and secret to localStorage)<br>
-    <button onclick="clearKey()">Clear</button> Clear base64 encoded consumer key and secret from localStorage.
+    <button id="createConsumerKnS">Run</button> (In this example, store base64 encoded consumer key and secret to localStorage)<br>
+    <button id="clearKey">Clear</button> Clear base64 encoded consumer key and secret from localStorage.
   </section>
   <hr>
   <section>
@@ -155,7 +166,7 @@
     <pre>var dropbox = new Dropbox(
   &quot;<input type="text" id="consumerKnS2" size="50">&quot;
 ); // base64 encoded consumer key and secret</pre>
-    <button onclick="construct()">Run</button><br><br>
+    <button id="construct">Run</button><br><br>
     Status: <span id="status"><span class="noinit">Not constructed.</span></span>
     <p>Yet another interface:</p>
     <pre>var dropbox = new Dropbox(consumerKey, consumerSecret);</pre>
@@ -172,7 +183,7 @@
     <p>Clear access key and access secret.</p>
     <pre>dropbox-&gt;deauthorize();</pre>
     <pre>dropbox-&gt;logOutDropbox();</pre>
-    <button onclick="exampleDeauthorize(this)">Run</button>
+    <button id="exampleDeauthorize">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -181,7 +192,7 @@
     <p>Get access key and access secret of OAuth.<br>
       Store there to Dropbox object and localStorage.</p>
     <pre>dropbox-&gt;authorize(success, error);</pre>
-    <button onclick="exampleAuthorize(this)">Run</button>
+    <button id="exampleAuthorize">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -189,7 +200,7 @@
     <h1>getAccountInfo</h1>
     <p>Get Dropbox account information.</p>
     <pre>dropbox-&gt;getAccountInfo(success, error);</pre>
-    <button onclick="exampleGetAccountInfo(this)">Run</button>
+    <button id="exampleGetAccountInfo">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -199,7 +210,7 @@
     <pre>dropbox-&gt;getMetadata(
   &quot;<input type="text" class="path" value="/">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetMetadata(this)">Run</button>
+    <button id="exampleGetMetadata">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -209,7 +220,7 @@
     <pre>dropbox-&gt;getRevisions(
   &quot;<input type="text" class="path" value="/Getting Started.pdf">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetRevisions(this)">Run</button>
+    <button id="exampleGetRevisions">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -219,7 +230,7 @@
     <pre>dropbox-&gt;getDirectoryContents(
   &quot;<input type="text" class="path" value="/">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetDirectoryContents(this)">Run</button>
+    <button id="exampleGetDirectoryContents">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -230,7 +241,7 @@
   &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
   &quot;<textarea class="text">test message.</textarea>&quot; /* text content */,
   success, error);</pre>
-    <button onclick="examplePutFileContents(this)">Run</button>
+    <button id="examplePutFileContents">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -240,7 +251,7 @@
     <pre>dropbox-&gt;getFileContents(
   &quot;<input type="text" class="path" value="/test.txt">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetFileContents(this)">Run</button>
+    <button id="exampleGetFileContents">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -251,7 +262,7 @@
   &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
   &quot;<input type="text" class="rev" value="">&quot; /* rev */,
   success, error);</pre>
-    <button onclick="exampleRestoreFileContents(this)">Run</button>
+    <button id="exampleRestoreFileContents">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -261,7 +272,7 @@
     <pre>dropbox-&gt;getThumbnail(
   &quot;<input type="text" class="path" value="/Photos/Sample Album/Boston City Flow.jpg">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetThumbnail(this)">Run</button>
+    <button id="exampleGetThumbnail">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -271,7 +282,7 @@
     <pre>dropbox-&gt;createDirectory(
   &quot;<input type="text" class="path" value="/sandbox">&quot;,
   success, error);</pre>
-    <button onclick="exampleCreateDirectory(this)">Run</button>
+    <button id="exampleCreateDirectory">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -282,7 +293,7 @@
   &quot;<input type="text" class="fromPath" value="/test.txt">&quot;, // from path
   &quot;<input type="text" class="toPath" value="/sandbox/test.txt">&quot;, // to path
   success, error);</pre>
-    <button onclick="exampleMovePath(this)">Run</button>
+    <button id="exampleMovePath">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -293,7 +304,7 @@
   &quot;<input type="text" class="fromPath" value="/sandbox/test.txt">&quot;, // from path
   &quot;<input type="text" class="toPath" value="/sandbox/test2.txt">&quot;, // to path
   success, error);</pre>
-    <button onclick="exampleCopyPath(this)">Run</button>
+    <button id="exampleCopyPath">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -303,7 +314,7 @@
     <pre>dropbox-&gt;deletePath(
   &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
   success, error);</pre>
-    <button onclick="exampleDeletePath(this)">Run</button>
+    <button id="exampleDeletePath">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -313,7 +324,7 @@
     <pre>dropbox-&gt;createShares(
   &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
-    <button onclick="exampleCreateShares(this)">Run</button>
+    <button id="exampleCreateShares">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -323,7 +334,7 @@
     <pre>dropbox-&gt;getDirectLink(
   &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
-    <button onclick="exampleGetDirectLink(this)">Run</button>
+    <button id="exampleGetDirectLink">Run</button>
     <div class="result"></div>
   </section>
   <hr>
@@ -334,14 +345,11 @@
   &quot;<input type="text" class="path" value="/sandbox/">&quot; /* path */,
   &quot;<input type="text" class="query">&quot; /* query */,
   success, error);</pre>
-    <button onclick="exampleSearch(this)">Run</button>
+    <button id="exampleSearch">Run</button>
     <div class="result"></div>
   </section>
   <hr>
 </section>
-<script>
-  initialize();
-</script>
 </body>
 </html>
 <!--

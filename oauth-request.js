@@ -196,10 +196,8 @@ var OAuthRequest = (function() {
             break;
 
           case RT_ARRAYBUFFER:
-            var bb = new WebKitBlobBuilder();
-            bb.append(result);
             var ct = this.getResponseHeader("Content-Type");
-            result = bb.getBlob(ct);
+            result = new Blob([result], { type: ct });
             break;
 
           default:
@@ -293,37 +291,39 @@ var OAuthRequest = (function() {
       getToken(
         oauth.requestTokenUrl, _saveRequestToken,
         function() {
-          var authWindowId;
+          var authTabId;
           var isSuccess = false;
-          var onRequest = function(request, sender, callback) {
-            if (sender.tab.windowId != authWindowId)
+          var onMessage = function(message, sender, callback) {
+            if (sender.tab.id != authTabId)
               return;
-            if (onRequest) {
-              chrome.extension.onRequest.removeListener(onRequest);
-              onRequest = null;
-            }
-            if (request.isSuccess) {
+            switch (message.type) {
+            case "GET_URL":
+              callback(oauth.authorizePage.url(self.requestToken));
+              return;
+            case "AUTHORIZED":
+              chrome.runtime.onMessage.removeListener(onMessage);
+              onMessage = null;
               isSuccess = true;
-              setTimeout(function() { chrome.windows.remove(authWindowId); }, 1000);
+              setTimeout(function() { chrome.tabs.remove(authTabId); }, 1000);
               getToken(oauth.accessTokenUrl, _saveAccessToken, success);
+              break;
             }
           };
-          chrome.extension.onRequest.addListener(onRequest);
-          chrome.windows.onRemoved.addListener(function(windowId) {
-            if (windowId == authWindowId && onRequest) {
-              chrome.extension.onRequest.removeListener(onRequest);
-              onRequest = null;
+          chrome.runtime.onMessage.addListener(onMessage);
+          chrome.tabs.onRemoved.addListener(function(tabId) {
+            if (tabId == authTabId && onMessage) {
+              chrome.runtime.onMessage.removeListener(onMessage);
+              onMessage = null;
               if (!isSuccess)
                 error({ error: "Authorization refused." }, {});
             }
           });
           var page = oauth.authorizePage;
-          chrome.windows.create({
-            url: page.url(self.requestToken),
-            width: page.width, height: page.height,
-            focused: true, type: "popup"
-          }, function(window) {
-            authWindowId = window.id;
+          chrome.tabs.create({
+            url: "oauth-callback.html",
+            active: true
+          }, function(tab) {
+            authTabId = tab.id;
           });
         }
       );
