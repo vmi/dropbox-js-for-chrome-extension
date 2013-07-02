@@ -106,7 +106,7 @@ function construct() {
       alert("Missing base64 encoded consumer key and secret.");
       return;
     }
-    dropbox = new Dropbox().initialize(consumerKnS);
+    dropbox = new Dropbox(true).initialize(consumerKnS);//new Dropbox(false, consumerKnS);
     $("#status").html('<span class="inited">OK</span>');
   }
 }
