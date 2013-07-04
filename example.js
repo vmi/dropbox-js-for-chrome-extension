@@ -76,11 +76,17 @@ var dropbox = null;
 
 // Initialize example page
 function initialize() {
+  var isFullAccessText = localStorage["Dropbox:isFullAccess"] || "true";
+  $("#isFullAccess").attr("checked", isFullAccessText === "true");
+  $("#isFullAccessText").text(isFullAccessText);
   var consumerKnS = localStorage["Dropbox:consumerKnS"];
   if (consumerKnS) {
+    $("#localStorage").text("Saved.");
     $("#consumerKnS").val(consumerKnS);
     $("#consumerKnS2").val(consumerKnS);
     construct();
+  } else {
+    $("#localStorage").text("Not saved.");
   }
 }
 
@@ -95,28 +101,37 @@ function createConsumerKnS() {
   var consumerKnS = btoa(consumerKey + "\n" + consumerSecret);
   $("#consumerKnS").val(consumerKnS);
   $("#consumerKnS2").val(consumerKnS);
-  localStorage["Dropbox:consumerKnS"] = consumerKnS;
 }
 
 // Construct Dropbox object
 function construct() {
   if (!dropbox) {
+    var isFullAccess = $("#isFullAccess").is(":checked");
     var consumerKnS = $("#consumerKnS2").val();
     if (!consumerKnS) {
       alert("Missing base64 encoded consumer key and secret.");
       return;
     }
-    dropbox = new Dropbox(true).initialize(consumerKnS);//new Dropbox(false, consumerKnS);
+    dropbox = new Dropbox(isFullAccess, consumerKnS);
     $("#status").html('<span class="inited">OK</span>');
+    $("#root").text(dropbox.root);
+    localStorage["Dropbox:isFullAccess"] = String(isFullAccess);
+    localStorage["Dropbox:consumerKnS"] = consumerKnS;
+    $("#localStorage").text("Saved.");
   }
 }
 
 // Clear consumer key and consumer secret
 function clearKey() {
+  delete localStorage["Dropbox:isFullAccess"];
   delete localStorage["Dropbox:consumerKnS"];
-  $("#consumerKnS").val("");
   dropbox = null;
+  $("#isFullAccess").attr("checked", true);
+  $("#isFullAccessText").text("true");
+  $("#consumerKnS2").val("");
+  $("#localStorage").text("Not saved.");
   $("#status").html('Not constructed.');
+  $("#root").text("");
 }
 
 //// Example functions
@@ -302,6 +317,9 @@ $(document).ready(function() {
     exampleSearch
   ], function(i, func) {
     $("#" + func.name).click(func);
+  });
+  $("#isFullAccess").change(function() {
+    $("#isFullAccessText").text($(this).is(":checked"));
   });
   initialize();
 });

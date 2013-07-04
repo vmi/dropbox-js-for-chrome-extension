@@ -27,6 +27,13 @@
     color: red;
     font-weight: bold;
   }
+  .strong {
+    font-weight: bold;
+  }
+  #root {
+    color: red;
+    font-weight: bold;
+  }
   input.path, input.fromPath, input.toPath {
     width: 20em;
   }
@@ -69,6 +76,11 @@
   <section>
     <h1>Changes</h1>
     <ul>
+      <li>2013-07-05:<ul>
+        <li>Merged <a href="https://github.com/vmi/dropbox-js-for-chrome-extension/pull/2" target="_blank">pull request #2</a>.</li>
+        <li>Refine merged code.</li>
+        <li>Refine example code and html.</li>
+      </ul></li>
       <li>2013-06-09:<ul>
         <li>Change manifest version.</li>
         <li>Adapt to new chrome APIs.</li>
@@ -82,6 +94,9 @@
     <p>
       To get consumer key (app key) and consumer secret (app secret),<br>
       register your application information at <a href="https://www.dropbox.com/developers">Dropbox for Developers site</a>. 
+    </p>
+    <p>
+      Note: You need select “<span class="strong">Core</span>” on “Create an ne Dropbox Platform app” page.
     </p>
   </section>
   <hr>
@@ -157,32 +172,40 @@
     <pre>btoa(&quot;<input type="text" id="consumerKey" size="15">&quot; /* consumer key (app key) */ + &quot;\n&quot; +
      &quot;<input type="text" id="consumerSecret" size="15">&quot; /* consumer secret (app secret) */ )
 ⇒ &quot;<input type="text" id="consumerKnS" size="50">&quot;</pre>
-    <button id="createConsumerKnS">Run</button> (In this example, store base64 encoded consumer key and secret to localStorage)<br>
-    <button id="clearKey">Clear</button> Clear base64 encoded consumer key and secret from localStorage.
+    <button id="createConsumerKnS">Run</button>
   </section>
   <hr>
   <section>
     <h1>Construct Dropbox object</h1>
-    <pre>var dropbox = new Dropbox(
+    <p>“isFullAccess” depends on your app permission.</p>
+    <ul>
+      <li><span class="strong">true</span> if your app permission is “Full Dropbox”. (use “dropbox” root)</li>
+      <li><span class="strong">false</span> if your app permission is “App folder”. (use “sandbox” root)</li>
+    </ul>
+    <p>If isFullAccess is omitted, it is set to true.</p>
+    <pre>var dropbox = new Dropbox(/* isFullAccess = */ <label><input type="checkbox" id="isFullAccess"><span id="isFullAccessText"></span></label>,
   &quot;<input type="text" id="consumerKnS2" size="50">&quot;
 ); // base64 encoded consumer key and secret</pre>
-    <button id="construct">Run</button><br><br>
-    Status: <span id="status"><span class="noinit">Not constructed.</span></span>
+    <button id="construct">Run</button> (In this example, store isFullAccess, base64 encoded consumer key and secret to localStorage)<br>
+    <button id="clearKey">Clear</button> Clear base64 encoded consumer key and secret from localStorage.<br><br>
+    LocalStorage: <span id="localStorage"></span><br>
+    Status: <span id="status"><span class="noinit">Not constructed.</span></span><br>
+    Root: <span id="root"></span>
     <p>Yet another interface:</p>
-    <pre>var dropbox = new Dropbox(consumerKey, consumerSecret);</pre>
+    <pre>var dropbox = new Dropbox(isFullAccess, consumerKey, consumerSecret);</pre>
   </section>
   <hr>
   <section>
     <h1>setDefaultError <span class="only">*</span></h1>
     <p>Set default callback function at error.</p>
-    <pre>dropbox-&gt;setDefaultError(error);</pre>
+    <pre>dropbox.setDefaultError(error);</pre>
   </section>
   <hr>
   <section>
     <h1>deauthorize / logOutDropbox</h1>
     <p>Clear access key and access secret.</p>
-    <pre>dropbox-&gt;deauthorize();</pre>
-    <pre>dropbox-&gt;logOutDropbox();</pre>
+    <pre>dropbox.deauthorize();</pre>
+    <pre>dropbox.logOutDropbox();</pre>
     <button id="exampleDeauthorize">Run</button>
     <div class="result"></div>
   </section>
@@ -191,7 +214,7 @@
     <h1>authorize</h1>
     <p>Get access key and access secret of OAuth.<br>
       Store there to Dropbox object and localStorage.</p>
-    <pre>dropbox-&gt;authorize(success, error);</pre>
+    <pre>dropbox.authorize(success, error);</pre>
     <button id="exampleAuthorize">Run</button>
     <div class="result"></div>
   </section>
@@ -199,7 +222,7 @@
   <section>
     <h1>getAccountInfo</h1>
     <p>Get Dropbox account information.</p>
-    <pre>dropbox-&gt;getAccountInfo(success, error);</pre>
+    <pre>dropbox.getAccountInfo(success, error);</pre>
     <button id="exampleGetAccountInfo">Run</button>
     <div class="result"></div>
   </section>
@@ -207,7 +230,7 @@
   <section>
     <h1>getMetadata</h1>
     <p>Get metadata of the item (file or directory).</p>
-    <pre>dropbox-&gt;getMetadata(
+    <pre>dropbox.getMetadata(
   &quot;<input type="text" class="path" value="/">&quot;,
   success, error);</pre>
     <button id="exampleGetMetadata">Run</button>
@@ -217,7 +240,7 @@
   <section>
     <h1>getRevisions <span class="only">*</span></h1>
     <p>Get revisions of the file (not directory).</p>
-    <pre>dropbox-&gt;getRevisions(
+    <pre>dropbox.getRevisions(
   &quot;<input type="text" class="path" value="/Getting Started.pdf">&quot;,
   success, error);</pre>
     <button id="exampleGetRevisions">Run</button>
@@ -227,7 +250,7 @@
   <section>
     <h1>getDirectoryContents</h1>
     <p>Get metadeta of the directory and of items in it.</p>
-    <pre>dropbox-&gt;getDirectoryContents(
+    <pre>dropbox.getDirectoryContents(
   &quot;<input type="text" class="path" value="/">&quot;,
   success, error);</pre>
     <button id="exampleGetDirectoryContents">Run</button>
@@ -237,7 +260,7 @@
   <section>
     <h1>putFileContents</h1>
     <p>Put text file (UTF-8 only).</p>
-    <pre>dropbox-&gt;putFileContents(
+    <pre>dropbox.putFileContents(
   &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
   &quot;<textarea class="text">test message.</textarea>&quot; /* text content */,
   success, error);</pre>
@@ -248,7 +271,7 @@
   <section>
     <h1>getFileContents</h1>
     <p>Get file content.</p>
-    <pre>dropbox-&gt;getFileContents(
+    <pre>dropbox.getFileContents(
   &quot;<input type="text" class="path" value="/test.txt">&quot;,
   success, error);</pre>
     <button id="exampleGetFileContents">Run</button>
@@ -258,7 +281,7 @@
   <section>
     <h1>restoreFileContents <span class="only">*</span></h1>
     <p>Restore file content specified revision.</p>
-    <pre>dropbox-&gt;restoreFileContents(
+    <pre>dropbox.restoreFileContents(
   &quot;<input type="text" class="path" value="/test.txt">&quot; /* path */,
   &quot;<input type="text" class="rev" value="">&quot; /* rev */,
   success, error);</pre>
@@ -269,7 +292,7 @@
   <section>
     <h1>getThumbnail <span class="only">*</span></h1>
     <p>Get image of thumbnail (if exists).</p>
-    <pre>dropbox-&gt;getThumbnail(
+    <pre>dropbox.getThumbnail(
   &quot;<input type="text" class="path" value="/Photos/Sample Album/Boston City Flow.jpg">&quot;,
   success, error);</pre>
     <button id="exampleGetThumbnail">Run</button>
@@ -279,7 +302,7 @@
   <section>
     <h1>createDirectory</h1>
     <p>Create new directory.</p>
-    <pre>dropbox-&gt;createDirectory(
+    <pre>dropbox.createDirectory(
   &quot;<input type="text" class="path" value="/sandbox">&quot;,
   success, error);</pre>
     <button id="exampleCreateDirectory">Run</button>
@@ -289,7 +312,7 @@
   <section>
     <h1>movePath <span class="only">*</span></h1>
     <p>Move path.</p>
-    <pre>dropbox-&gt;movePath(
+    <pre>dropbox.movePath(
   &quot;<input type="text" class="fromPath" value="/test.txt">&quot;, // from path
   &quot;<input type="text" class="toPath" value="/sandbox/test.txt">&quot;, // to path
   success, error);</pre>
@@ -300,7 +323,7 @@
   <section>
     <h1>copyPath <span class="only">*</span></h1>
     <p>Copy path.</p>
-    <pre>dropbox-&gt;copyPath(
+    <pre>dropbox.copyPath(
   &quot;<input type="text" class="fromPath" value="/sandbox/test.txt">&quot;, // from path
   &quot;<input type="text" class="toPath" value="/sandbox/test2.txt">&quot;, // to path
   success, error);</pre>
@@ -311,7 +334,7 @@
   <section>
     <h1>deletePath</h1>
     <p>Delete path.</p>
-    <pre>dropbox-&gt;deletePath(
+    <pre>dropbox.deletePath(
   &quot;<input type="text" class="path" value="/sandbox/test2.txt">&quot;,
   success, error);</pre>
     <button id="exampleDeletePath">Run</button>
@@ -321,7 +344,7 @@
   <section>
     <h1>createShares <span class="only">*</span></h1>
     <p>Create share items.</p>
-    <pre>dropbox-&gt;createShares(
+    <pre>dropbox.createShares(
   &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
     <button id="exampleCreateShares">Run</button>
@@ -331,7 +354,7 @@
   <section>
     <h1>getDirectLink <span class="only">*</span></h1>
     <p>Get direct link.</p>
-    <pre>dropbox-&gt;getDirectLink(
+    <pre>dropbox.getDirectLink(
   &quot;<input type="text" class="path" value="/sandbox/test.txt">&quot;,
   success, error);</pre>
     <button id="exampleGetDirectLink">Run</button>
@@ -341,7 +364,7 @@
   <section>
     <h1>search <span class="only">*</span></h1>
     <p>Seach items.</p>
-    <pre>dropbox-&gt;seach(
+    <pre>dropbox.seach(
   &quot;<input type="text" class="path" value="/sandbox/">&quot; /* path */,
   &quot;<input type="text" class="query">&quot; /* query */,
   success, error);</pre>
